@@ -1,26 +1,11 @@
-# KB (kb)
+# SamePage (SamePage)
 
-KB
+This is an alpha build of the SamePage demonstrator. It is built using the Quasar framework.
 
-## Install the dependencies
-```bash
-yarn
-```
+WIP
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
-quasar dev
-```
 
-### Lint the files
-```bash
-yarn run lint
-```
-
-### Build the app for production
-```bash
-quasar build
-```
-
-### Customize the configuration
-See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).
+## Installation
+- Install Quasar
+- Yarn install or npm install
+- Add src/boot/firebaseConfig.js with firebase config settings.
