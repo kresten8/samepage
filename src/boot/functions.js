@@ -107,7 +107,7 @@ export default ({ app, store, Vue }) => {
     const q = encodeURIComponent(text)
     return Vue.prototype.$axios({
       baseURL: 'https://babelfy.io/v1/',
-      url: '/disambiguate?text=' + q + '&lang=' + language.toUpperCase() + '&annType=NAMED_ENTITIES&key=e3fbf1b9-0dcd-4b1e-a6e5-79da0bf5a654',
+      url: '/disambiguate?text=' + q + '&lang=' + language.toUpperCase() + '&annType=NAMED_ENTITIES&key=',
       method: 'get',
       responseType: 'json'
     }).then((response) => {
