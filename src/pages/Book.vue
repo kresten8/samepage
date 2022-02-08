@@ -28,7 +28,7 @@
       <div ref="previewFixed" @mousedown="sidePan = 'fixed'" @mouseup="addAnnotation" class="preview preview-fixed" v-if="pages" :class="[viewMode === 'fixed' && !settings.hideOriginal && 'preview-show', settings.showScans ? 'preview-fixed-scans col-6' : 'col-12']">
         <panZoom :options="{ transformOrigin: { x: 0.5, y: 0.5 }, zoomDoubleClickSpeed: 1 }" ref="panZoomFixed" @panend="saveZoomFixed" @zoomend="saveZoomFixed" @zoom="linkZoomFixed" @pan="linkPanFixed" @init="initZoomFixed">
           <div style="position: relative; overflow: hidden" ref="panZoomFixedDiv" id="panZoomFixedDiv">
-            <div class="preview-fixed-contents" :style="'text-align-last: ' + (settings.textAlignLast ? 'justify' : 'inherit') + '; text-align: ' + settings.textAlign + '; width: ' + settings.fixedWidth + 'rem; font-size: ' + settings.fixedFontSize + 'rem; letter-spacing: ' + settings.fixedLetterSpacing + 'em; line-height: ' + settings.fixedLineHeight + '; margin-top: ' + settings.scanPageTopMargin + 'rem'"><div class="preview-content" v-for="(page, index) in pages" :key="index" :page="page.nr" v-show="currentPage === index" v-html="fixedHTML" /></div>
+            <div class="preview-fixed-contents" :style="'text-align-last: ' + (settings.textAlignLast ? 'justify' : 'inherit') + '; text-align: ' + settings.textAlign + '; width: ' + settings.fixedWidth + 'rem; font-size: ' + settings.fixedFontSize + 'rem; letter-spacing: ' + settings.fixedLetterSpacing + 'em; line-height: ' + settings.fixedLineHeight + '; margin-top: ' + settings.scanPageTopMargin + 'rem'"><div class="preview-content" v-html="fixedHTML" /></div>
           </div>
         </panZoom>
       </div>
@@ -487,7 +487,6 @@ export default {
         const settings = this.$store.getters['books/getSettings']()
         if (!settings.ner) settings.ner = {}
         if (!settings.ner.paragraphs) settings.ner.paragraphs = []
-        console.log(settings.ner)
         settings.ner.paragraphs = settings.ner.paragraphs.filter(p => p.id !== paragraph.id)
         delete paragraph.loading
         settings.ner.paragraphs.push({
@@ -562,9 +561,7 @@ export default {
       console.log(this.scanScale) */
     },
     initZoomFixed (e) {
-      console.log(e)
       const settings = this.$clone(this.$store.getters['books/getSettings']())
-      console.log(settings)
       if (settings.zoomTransformFixed) {
         e.zoomAbs(0, 0, Math.max(0.3, settings.zoomTransformFixed.scale * 1))
         e.moveTo(settings.zoomTransformFixed.x * 1, settings.zoomTransformFixed.y * 1)
@@ -576,14 +573,10 @@ export default {
     },
     initZoomScan (e) {
       setTimeout(() => {
-        console.log(e)
         const settings = this.$clone(this.$store.getters['books/getSettings']())
         if (settings.zoomTransformScan) {
-          console.log(settings.zoomTransformScan.y)
-          console.log(this.$clone(e.getTransform()), settings.zoomTransformScan.x * 1, settings.zoomTransformScan.y * 1, settings.zoomTransformScan.scale)
           e.zoomAbs(0, 0, settings.zoomTransformScan.scale * 1)
           e.moveTo(settings.zoomTransformScan.x * 1, settings.zoomTransformScan.y * 1)
-          console.log(this.$clone(e.getTransform()))
           this.prevTransform.scan = settings.zoomTransformScan
         }
       }, 500)
@@ -629,7 +622,6 @@ export default {
         const settings = this.$clone(this.$store.getters['books/getSettings']())
         settings.zoomTransformFixed = this.$clone(transform)
         this.$store.dispatch('books/setSettings', settings)
-        console.log(settings)
       }, 0)
     },
     saveZoomScan (e) {
@@ -674,7 +666,6 @@ export default {
           let currentHTML = ''
           let target
           if (this.viewMode === 'fixed') {
-            console.log('a')
             this.currentPage = this.pages.sort((a, b) => (a.nr - annotation.page) - (b.nr - annotation.page)).findIndex(page => page.html.indexOf(annotation.fragment) >= 0)
           }
           setTimeout(() => {
@@ -720,11 +711,13 @@ export default {
         setTimeout(() => {
           // const target = this.viewMode === 'fixed' ? this.$refs.previewFixed.querySelectorAll('[data-page="' + this.currentPage + '"]')[0] : this.$refs.previewReflow.childNodes[0]
           this.nerParagraphs.forEach(paragraph => {
-            const p = document.getElementById(paragraph.id)
-            if (p) {
-              paragraph.uniqueNER.forEach(entity => {
-                p.innerHTML = p.innerHTML.replace(entity.text, '<a href="' + (entity.DBpediaURL) + '" target="_blank" class="ner_7421">' + entity.text + '</a>')
-              })
+            const ps = document.querySelectorAll("[id='" + paragraph.id + "']")
+            for (const p of ps) {
+              if (p) {
+                paragraph.uniqueNER.forEach(entity => {
+                  p.innerHTML = p.innerHTML.replace(entity.text, '<a href="' + (entity.DBpediaURL) + '" target="_blank" class="ner_7421">' + entity.text + '</a>')
+                })
+              }
             }
           })
         }, 100)
@@ -791,13 +784,11 @@ export default {
           this.fixedHTML = html.innerHTML
         })
         this.pageImage = ''
-        console.log('page')
         this.$store.dispatch('books/getImage', { book: this.book, page: this.pages[this.currentPage].index + this.settings.scanPageOffset }).then((blob) => {
           if (blob) {
             this.pageImage = window.URL.createObjectURL(blob)
             this.setScanImage()
           } else this.pageImage = ''
-          console.log(blob)
         })
       } else {
         this.currentHTML = ''
@@ -853,10 +844,12 @@ export default {
       Object.values((this.book.manifest && this.book.manifest.toc) || []).forEach(chapter => {
         var chapterId = chapter.href.replace('#', '')
         var chapterElement = this.$refs.previewReflow.querySelector('[name="' + chapterId + '"]')
-        this.positions.chapters.push({
-          id: chapterId,
-          top: chapterElement.offsetTop
-        })
+        if (chapterElement) {
+          this.positions.chapters.push({
+            id: chapterId,
+            top: chapterElement.offsetTop
+          })
+        }
       })
       for (var page of this.$refs.previewReflow.querySelectorAll('[data-page]')) {
         this.positions.pages.push({
@@ -948,7 +941,6 @@ export default {
         if (node.childNodes.length > 0) node = node.firstChild
         processedText += node.textContent
         progress = processedText.length / paragraph.textContent.length
-        // console.log(progress, audio.line / audioList.length)
         if (progress >= 0.9 * audio.line / audioList.length && !foundLine && node.textContent.indexOf(line) >= 0) {
           foundLine = true
           const startPosition = node.textContent.indexOf(line)
@@ -958,7 +950,6 @@ export default {
           startContainer.setAttribute('data-audio', audio.id + '-' + audio.line)
           startContainer.setAttribute('data-time', audio.progress)
           startContainer.setAttribute('data-duration', audio.duration)
-          // console.log(node, paragraph.childNodes, i, line, node.textContent.substr(startPosition, endPosition), startPosition, endPosition, audio.progress / 100)
           const startRange = new Range()
           startRange.setStart(node, startPosition)
           startRange.setEnd(node, endPosition)

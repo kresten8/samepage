@@ -21,7 +21,6 @@ export default ({ app, store, Vue }) => {
   }
   Vue.prototype.$importBookFile = (e) => {
     return new Promise((resolve, reject) => {
-      console.log(e.files)
       for (var file of e.files) {
         var reader = new FileReader()
         reader.onload = (e) => {
@@ -53,13 +52,11 @@ export default ({ app, store, Vue }) => {
             resolve(entry.async('text').then(text => {
               book.manifest = JSON.parse(text)
               book.id = book.manifest.id
-              console.log(revision)
               if (revision && revision.id) {
                 book.manifest.revision = revision.id
                 book.revision = revision
                 book.id += '-' + book.manifest.revision
               }
-              console.log(book.id)
             }))
             return true
           }
@@ -185,14 +182,12 @@ export default ({ app, store, Vue }) => {
           let destination = path.replace(root, '')
           if (destination !== 'manifest.json' && destination !== 'content.html') {
             const manifestEntry = (book.manifest.resources || []).find(resource => resource.href === destination || (resource.json && resource.json.href === destination))
-            console.log(destination, manifestEntry)
             if (manifestEntry) {
               if (manifestEntry.href === destination) {
                 destination = destination.split('/').slice(-2).join('/')
               }
               promises.push(entry.async('blob').then(blob => {
                 files.push({ name: destination, blob: blob })
-                console.log(destination, blob)
                 // counter++
                 return true
               }))
@@ -217,7 +212,6 @@ export default ({ app, store, Vue }) => {
           }
         })
         return Promise.all(promises).then(() => {
-          console.log(book, files)
           return store.dispatch('books/addFiles', { bookId: book.manifest.id, files: files })
         }).then(() => {
           const promises = []
@@ -314,7 +308,6 @@ export default ({ app, store, Vue }) => {
         }).then(() => {
           return store.dispatch('books/addBook', book)
         }).then(() => {
-          console.log(book)
           return book
         })
       })
@@ -327,7 +320,6 @@ export default ({ app, store, Vue }) => {
   }
   Vue.prototype.$exportBook = (book, excludeScans, returnBlob) => {
     return new Promise((resolve, reject) => {
-      console.log(book)
       const filename = book.manifest.metadata.title
       var zip = new JSZip()
       zip.file(filename + '/manifest.json', JSON.stringify(book.manifest, null, '\t'))

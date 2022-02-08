@@ -5,11 +5,9 @@ export default ({ app, store, Vue }) => {
     }
     let bookType = ''
     return Vue.prototype.$getBookType(bookId).then(type => {
-      console.log(type)
       bookType = type
       return Vue.prototype.$getManifest(bookId, bookType)
     }).then(manifest => {
-      console.log(manifest)
       book = {
         ...book,
         manifest: {
@@ -27,12 +25,10 @@ export default ({ app, store, Vue }) => {
       if (book.toc && book.pages) {
         book.toc = Vue.prototype.$getPageNumbers(book.toc, book.pages)
       }
-      console.log(book)
       if (!book.manifest.id) book.manifest.id = book.id
       if (!book.manifest.toc || book.manifest.toc.length === 0) {
         book.manifest.toc = book.toc
       }
-      console.log(book)
       return store.dispatch('books/addBook', book)
     })
   }
@@ -49,7 +45,7 @@ export default ({ app, store, Vue }) => {
         }
         return 'epub'
       }).catch(err => {
-        console.log(err)
+        console.error(err)
         return false
       })
     })
@@ -117,7 +113,6 @@ export default ({ app, store, Vue }) => {
       }
       if (tags.pagebreak && element.matches(tags.pagebreak.selector)) {
         page = element.getAttribute(tags.pagebreak.number)
-        // console.log(element.innerText)
         element.innerText = page
       }
       if (tags.replace) {
@@ -128,7 +123,6 @@ export default ({ app, store, Vue }) => {
         }
       }
       if (tags.chapter && element.matches(tags.chapter.selector)) {
-        // var headingClone = heading.cloneNode(false)
         let slug = ''
         for (var childNode of element.childNodes) {
           if (typeof childNode.id === 'undefined' && !slug) {
@@ -232,14 +226,11 @@ export default ({ app, store, Vue }) => {
       book.manifest.resources = book.manifest.resources.concat(pageImages)
       var promises = []
       var files = []
-      console.log('resources')
       book.manifest.resources.filter(resource => ['cover-image', 'scan', 'image'].indexOf(resource.rel) >= 0).forEach(resource => {
-        console.log(resource.href)
         if (resource.href.substr(0, 4) !== 'http') {
           promises.push(window.fetch('books/' + book.id + '/' + resource.href).then((response) => {
             return response.blob()
           }).then(blob => {
-            console.log(resource.href)
             files.push({ name: resource.href, blob: blob })
             return true
           }))
@@ -264,7 +255,6 @@ export default ({ app, store, Vue }) => {
         }
       }
       return Promise.all(promises).finally(() => {
-        console.log(book)
         return store.dispatch('books/addFiles', { bookId: book.id, files: files })
       }).then(() => {
         resolve(book)
@@ -306,7 +296,6 @@ export default ({ app, store, Vue }) => {
     return Vue.prototype.$getFileContents('books/' + bookId, 'nav.xhtml', '[epub\\:type=toc] [href]').then(files => {
       var promises = []
       for (const file of files) {
-        console.log('books/' + bookId + '/' + file.getAttribute('href'))
         promises.push(Vue.prototype.$getFileContents('books/' + bookId, file.getAttribute('href')).then(body => {
           html += body.innerHTML
         }))
@@ -331,11 +320,8 @@ export default ({ app, store, Vue }) => {
       }
       const images = html.querySelectorAll('img')
       const promises = []
-      console.log(images)
       for (let i = 0; i < images.length; i++) {
-        console.log(images[i].getAttribute('src'))
         promises.push(store.dispatch('books/getResource', { bookId: bookId, href: images[i].getAttribute('src') }).then(blob => {
-          console.log(images[i].getAttribute('src'), blob)
           if (!blob) return true
           images[i].setAttribute('src', window.URL.createObjectURL(blob))
           return true
@@ -350,12 +336,7 @@ export default ({ app, store, Vue }) => {
     return new Promise((resolve, reject) => {
       source = source.cloneNode(true)
       source.style.display = 'block'
-      // resolve(Vue.prototype.$getImageUrls(bookId, source).then(() => {
-      console.log('start loop')
       var data = Vue.prototype.$loopPages(source, { page: 0, pageList: [] }, pagebreak)
-      console.log('end loop')
-      console.log(data)
-      // this.pageList = this.pageList.filter(nr => !isNaN(nr))
       const pages = []
       data.pageList.forEach((page, index) => {
         var pageLayer = data.element.cloneNode(true)
@@ -381,9 +362,7 @@ export default ({ app, store, Vue }) => {
           index: index
         })
       })
-      console.log(pages)
       resolve(pages)
-      // }))
     })
   }
   Vue.prototype.$loopPages = (element, options, pagebreak) => {

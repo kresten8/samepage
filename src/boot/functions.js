@@ -1,5 +1,6 @@
 import { version } from '../../package.json'
 import { date } from 'quasar'
+
 import panZoom from 'vue-panzoom'
 export default ({ app, store, Vue }) => {
   Vue.use(panZoom)
@@ -45,14 +46,9 @@ export default ({ app, store, Vue }) => {
     // q = encodeURIComponent(q)
     const data = new FormData()
     data.append('json', JSON.stringify({ text: q }))
-    return window.fetch('https://samepagedemo.com/translate?from=' + source + '&to=' + target + '&q=' + encodeURI(q), {
-      method: 'GET',
-      mode: 'cors',
-      referrerPolicy: 'no-referrer',
-      credentials: 'same-origin',
-      cache: 'no-cache' // *default, no-cache, reload, force-cache, only-if-cached
-    }).then((response) => {
-      return response.text()
+    return Vue.prototype.$axios.get('https://samepagedemo.com/translate/?from=' + source + '&to=' + target + '&q=' + encodeURI(q)).then((response) => {
+      // console.log(response)
+      return response.data
     }).then(text => {
       return text
     })
@@ -78,7 +74,6 @@ export default ({ app, store, Vue }) => {
       }],
       responseType: 'json'
     }).then((response) => {
-      console.log(response.data)
       return response.data[0].translations[0].text
     })
   }
@@ -98,7 +93,6 @@ export default ({ app, store, Vue }) => {
       responseType: 'json',
       crossdomain: true
     }).then((response) => {
-      console.log(response.data)
       return response.data[0].translations[0].text
     })
   }

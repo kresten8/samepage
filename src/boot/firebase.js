@@ -3,7 +3,7 @@ import 'firebase/compat/firestore'
 import 'firebase/compat/storage'
 import 'firebase/compat/auth'
 
-import { config } from './firebase-config'
+import { config } from './firebaseConfig.js'
 
 firebase.initializeApp(config)
 

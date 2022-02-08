@@ -98,6 +98,7 @@ export default {
   'remote books': 'Documenten in de cloud',
   login: 'Inloggen',
   logout: 'Uitloggen',
+  'login explanation': 'U kunt een account aanvragen door een e-mail te sturen naar info@samepagedemo.com',
   email: 'E-mail',
   password: 'Wachtwoord',
   'log in to cloud': 'Inloggen voor de cloud',

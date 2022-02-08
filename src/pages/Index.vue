@@ -4,7 +4,7 @@
       <q-spinner-gears size="5rem" color="primary" />
     </div>
     <div class="q-pa-md row items-start q-gutter-md">
-      <div class="full-width row">
+      <div class="full-width row" v-if="$store.getters['cloud/getUser']()">
         <h1 class="col-8 q-px-md q-my-none">{{$tc('local books', 2)}}</h1>
         <div class="col-4 text-right"><q-btn flat class="bg-primary text-white" rounded :label="$t('add book')" @click="importBook" /></div>
       </div>
@@ -44,13 +44,16 @@
           </q-menu>
         </q-btn>
       </q-card>
-      <h1 class="full-width q-px-md">{{$tc('remote books', 2)}}</h1>
-      <q-card v-if="!$store.getters['cloud/getUser']()" class="book-card" flat bordered>
-        {{$t('log in to cloud')}}
-        <q-input v-model="user.email" :label="$t('email')" />
-        <q-input v-model="user.password" :label="$t('password')" type="password" />
-        <q-btn @click="$store.dispatch('cloud/login', user)" :label="$t('login')" flat rounded class="q-mt-sm bg-grey-3 text-primary" />
-      </q-card>
+      <h1 class="full-width q-px-md" v-if="$store.getters['cloud/getUser']()">{{$tc('remote books', 2)}}</h1>
+      <div v-if="!$store.getters['cloud/getUser']()" class="absolute flex flex-center full-width full-height">
+        <q-card class="book-card" flat bordered>
+          <h2 class="q-ma-none">{{$t('login')}}</h2>
+          <q-input v-model="user.email" :label="$t('email')" />
+          <q-input v-model="user.password" :label="$t('password')" type="password" />
+          <q-btn @click="$store.dispatch('cloud/login', user)" :label="$t('login')" flat rounded class="q-mt-sm bg-grey-3 text-primary" />
+          <div class="q-pt-md">{{$t('login explanation')}}</div>
+        </q-card>
+      </div>
       <q-card class="book-card" flat bordered v-for="(book) in remoteBooks" :key="book.id" @click="showBookInfo(book)">
         <div class="row">
           <div class="col-6">

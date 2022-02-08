@@ -98,6 +98,7 @@ export default {
   'remote books': 'Remote documents',
   login: 'Log in',
   logout: 'Log out',
+  'login explanation': 'You can request an account by sending an e-mail to info@samepagedemo.com',
   email: 'Email',
   password: 'Password',
   'log in to cloud': 'Login in to cloud',

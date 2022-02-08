@@ -161,12 +161,12 @@ h3, h4 {
     opacity: 1;
     position: absolute;
     left: 0%;
-    width: auto;
+    width: 50%;
     white-space: nowrap;
     height: 100%;
     > div {
       white-space: normal;
-      width: 40em;
+      width: 100%;
       max-width: 100vw;
       display: inline-block;
       position: relative;
